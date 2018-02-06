@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Mental Math Quiz</title>
+  <script src="https://unpkg.com/react@15/dist/react.min.js"></script>
+  <script src="https://unpkg.com/react-dom@15/dist/react-dom.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.24.0/babel.js"></script>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+
+    function Feedback(props){
+      if (props.userChoiceWasCorrect){
+         return <h3 style={{color:"blue"}}>Correct!</h3>
+      }
+      else{
+         return <h4 style={{color:"red"}}>Sorry, incorrect</h4>
+      }
+    }
+
+    function Encourage(props){
+      return (
+        <div>
+          <div style={props.countQuestions>1&&(props.countCorrect/props.countQuestions)>=0.5? {}:{"display":"none"}}>
+            <h2 style={{color:"green"}}>Doing great!</h2>
+          </div>
+        </div>
+      )
+    }
+
+    class Results extends React.Component{
+      render(){
+          return (
+              <div>
+                <section style={this.props.countQuestions>0? {}:{"display":"none"}}>
+                  <div style={{width:"150px", height:"77px"}}><h3>Number correct:  {this.props.countCorrect}</h3></div>
+                  <br/>
+                  <div style={{width:"150px",height: "77px"}}><h3>Number wrong:  {this.props.countWrong}</h3></div>
+                  <br/>
+                  <div style={{width:"150px", height: "77px"}}><h3>Percentage correct: {Number((this.props.countCorrect/this.props.countQuestions)*100).toFixed(2)}%</h3></div>
+                </section>
+              </div>
+          )
+      }
+    }
+    class Button extends React.Component{
+      render(){
+          return (
+            <div>
+                  <button style = {{color: "black", width: "180px", visibility:this.props.start? "hidden": "visible", borderWidth:'3px', borderColor: "gold", borderRadius: "15px", margin:"5px 5px"}} onClick={
+                    ()=>{this.props.Counter(this.props.name, this.props.correct)}
+                  }
+                  >
+                  <h2>{this.props.name}</h2>
+                  </button>
+              <br/>
+            </div>
+          )
+      }
+    }
+    function Question(props){
+      return(
+        <div>
+          <h2 style={{ visibility:props.showStart? "hidden": "visible"}}>Question #{props.countQuestions+1}</h2>
+          <h2>{props.question}</h2>
+        </div>
+      )
+    }
+
+    function Start(props){
+      return(
+        <div>
+          <content style={{visibility:props.showStart? "visible": "hidden"}}>
+            <h2>How well can you do math without a calculator?</h2>
+            <button style={{width: "100px", height: "50px", visibility:props.showStart? "visible": "hidden", borderWidth:'2px', borderColor: "gold", borderRadius: "10px"}} onClick={()=>{props.Generate()}}><h2>Start</h2></button>
+          </content>
+
+        </div>
+
+      )
+    }
+
+    class App extends React.Component{
+      constructor(props){
+        super(props)
+        this.state={showStart:1,number1: Math.floor((Math.random()*50)+1)
+          , number2: Math.floor((Math.random()*50)+1), randomNumberBetween1and5:1, question:"", answer:"",orderArray:[],countQuestions:0,countCorrect:0,countWrong:0,userChoiceWasCorrect:""};
+          this.Generate=this.Generate.bind(this);
+          this.Counter=this.Counter.bind(this);
+      }
+      Counter(name,correct){
+        this.setState((prevState,props) => {
+          return {countQuestions: prevState.countQuestions + 1}
+        })
+        if (correct){
+          this.setState({userChoiceWasCorrect:1})
+          this.setState((prevState,props)=>{
+            return {countCorrect:prevState.countCorrect+1}
+          })
+        }
+        else {
+          this.setState({userChoiceWasCorrect:0})
+          this.setState((prevState,props)=>{
+            return {countWrong:prevState.countWrong+1}
+          })
+        }
+        this.setState({percentage:this.state.countCorrect/this.state.countQuestions})
+        this.Generate()
+      }
+      Generate(){
+        this.setState({number1:Math.floor((Math.random()*50)+1)})
+        this.setState({number2:Math.floor((Math.random()*50)+1)})
+        this.setState({randomNumberBetween1and5:Math.floor((Math.random()*5)+1)})
+        function Operation1(a, b) {
+          return (Math.sqrt((a * a) + (b * b)).toFixed(2));
+        }
+        function Operation2(a,b){
+          return ((a-b)*(a-b));
+        }
+        function Operation3(a){
+          return Math.pow(a,2)
+        }
+        function Operation4(a,b){
+          return ((a/b).toFixed(2));
+        }
+        function Operation5(a,b){
+          return a*b
+        }
+          if (this.state.randomNumberBetween1and5==1){
+            this.setState({question:"What is  the hypotenuse of a right triangle with sides of length " + this.state.number1 + " and " + this.state.number2 + "?"})
+            var newAnswer= Operation1(this.state.number1,this.state.number2)
+            var newX=(this.state.number1)+10
+            var newY=this.state.number2+10
+            var tempWrong1=Operation1(newX,this.state.number2)
+            var tempWrong2=Operation1(this.state.number1,newY)
+            var tempWrong3=Operation1(newX,this.state.number2-7)
+            var tempWrong4=Operation1(this.state.number1-4,newY)
+            var tempArray=[newAnswer,tempWrong1,tempWrong2,tempWrong3,tempWrong4]
+            this.setState({orderArray : tempArray.sort(function(a, b){return 0.5 - Math.random()})})
+          }
+          else if (this.state.randomNumberBetween1and5==2 && this.state.number2>this.state.number1){
+            this.setState({question:"What is ("+this.state.number1+" -"+this.state.number2+") squared?"})
+            var newAnswer= Operation2(this.state.number1,this.state.number2)
+            var newX=(this.state.number1)+1
+            var newY=this.state.number2+1
+            var tempWrong1=Operation2(newX,this.state.number2)
+            var tempWrong2=Operation2(this.state.number1,newY)
+            var tempWrong3=Operation2(newX,this.state.number2-1)
+            var tempWrong4=Operation2(newX-2,newY)
+            var tempArray=[newAnswer,tempWrong1,tempWrong2,tempWrong3,tempWrong4]
+            this.setState({orderArray : tempArray.sort(function(a, b){return 0.5 - Math.random()})})
+          }
+          else if (this.state.randomNumberBetween1and5==3){
+            this.setState({question:"What is "+this.state.number1+" squared?"})
+            var newAnswer= Operation3(this.state.number1)
+            var newX=(this.state.number1)+1
+            var tempWrong1=Operation3(newX)
+            var tempWrong2=Operation3(this.state.number1-1)
+            var tempWrong3=Operation3(newX+1)
+            var tempWrong4=Operation3(this.state.number1-2)
+            var tempArray=[newAnswer,tempWrong1,tempWrong2,tempWrong3,tempWrong4]
+            this.setState({orderArray : tempArray.sort(function(a, b){return 0.5 - Math.random()})})
+          }
+          else if (this.state.randomNumberBetween1and5==4){
+            this.setState({question:"What is " + this.state.number1 + " divided by " + this.state.number2 + "?"})
+            var newAnswer= Operation4(this.state.number1,this.state.number2)
+            var newX=(this.state.number1)+1
+            var newY=this.state.number2+1
+            var tempWrong1=Operation4(newX,this.state.number2)
+            var tempWrong2=Operation4(this.state.number1,newY)
+            var tempWrong3=Operation4(newX,this.state.number2-1)
+            var tempWrong4=Operation4(newX-2,newY)
+            var tempArray=[newAnswer,tempWrong1,tempWrong2,tempWrong3,tempWrong4]
+            this.setState({orderArray : tempArray.sort(function(a, b){return 0.5 - Math.random()})})
+          }
+          else{
+            this.setState({question:"What is " + this.state.number1 + " X " + this.state.number2 + "?"})
+            var newAnswer= Operation5(this.state.number1,this.state.number2)
+            var newX=(this.state.number1)+1
+            var newY=this.state.number2+1
+            var tempWrong1=Operation5(newX,this.state.number2)
+            var tempWrong2=Operation5(this.state.number1,newY)
+            var tempWrong3=Operation5(newX,this.state.number2-1)
+            var tempWrong4=Operation5(newX-2,newY)
+            var tempArray=[newAnswer,tempWrong1,tempWrong2,tempWrong3,tempWrong4]
+            this.setState({orderArray : tempArray.sort(function(a, b){return 0.5 - Math.random()})})
+          }
+          this.setState({answer:newAnswer})
+          this.setState({wrong1:tempWrong1})
+          this.setState({wrong2:tempWrong2})
+          this.setState({wrong3:tempWrong3})
+          this.setState({wrong4:tempWrong4})
+          this.setState({showStart:0})
+          this.setState({nextQuestion:1})
+      }
+        render(){
+          return(
+            <div>
+
+              <Start showStart={this.state.showStart} Generate={this.Generate}/>
+
+              <div className="container">
+                <div className="row">
+                  <div className="col-md-5" style={{float:"left", width: "500px", marginLeft:"150px"}}>
+
+                    <Question showStart={this.state.showStart} countQuestions={this.state.countQuestions} question={this.state.question}/>
+
+                    <Button className="choices" start={this.state.showStart} correct={this.state.orderArray[0]==this.state.answer} name={this.state.orderArray[0]} Counter={this.Counter} number1={this.state.number1} number2={this.state.number2}/>
+                    <Button className="choices" start={this.state.showStart} correct={this.state.orderArray[1]==this.state.answer} name={this.state.orderArray[1]} Counter={this.Counter}/>
+                    <Button className="choices" start={this.state.showStart} correct={this.state.orderArray[2]==this.state.answer} name={this.state.orderArray[2]} Counter={this.Counter}/>
+                    <Button className="choices" start={this.state.showStart} correct={this.state.orderArray[3]==this.state.answer} name={this.state.orderArray[3]} Counter={this.Counter}/>
+                    <Button className="choices" start={this.state.showStart} correct={this.state.orderArray[4]==this.state.answer} name={this.state.orderArray[4]} Counter={this.Counter}/>
+                  </div>
+
+                  <div className="col-md-5" style={{float:"right", backgroundColor:"#fffbe5", marginRight:"200px"}}>
+                    <div style={this.state.countQuestions>0? {}:{"display":"none"}}>
+
+                        <Encourage countQuestions={this.state.countQuestions} countCorrect={this.state.countCorrect}/>
+
+                        <Feedback countQuestions={this.state.countQuestions} countCorrect={this.state.countCorrect} userChoiceWasCorrect={this.state.userChoiceWasCorrect}/>
+
+                        <Results countQuestions={this.state.countQuestions} countCorrect={this.state.countCorrect} countWrong={this.state.countWrong} percentage={this.state.percentage}/>
+
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          )
+        }
+    }
+    ReactDOM.render(
+      <App/>,
+      document.getElementById("root")
+    )
+    </script>
+  </body>
+</html>
